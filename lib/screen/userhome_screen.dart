@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:photomemoapp/controller/firebasecontroller.dart';
 import 'package:photomemoapp/model/constant.dart';
 import 'package:photomemoapp/model/photomemo.dart';
+import 'package:photomemoapp/screen/detailedview_screen.dart';
 import 'package:photomemoapp/screen/myview/myimage.dart';
 
 import 'addphotomemo_screen.dart';
@@ -91,13 +92,15 @@ class _UserHomeState extends State<UserHomeScreen> {
                         'Created By: ${photoMemoList[index].createdBy}',
                       ),
                       Text(
-                        'Shared By: ${photoMemoList[index].shareWith}',
+                        'Shared With: ${photoMemoList[index].shareWith}',
                       ),
                       Text(
                         'Updated At: ${photoMemoList[index].timestamp}',
                       ),
                     ],
                   ),
+                  onTap: () => con.onTap(
+                      index), //index of the list that is clicked on, e.g. which picture, which is why we pass index
                 ),
               ),
       ),
@@ -126,8 +129,21 @@ class _Controller {
       state.context,
       AddPhotoMemoScreen.routeName,
       arguments: {
-        Constant.ARG_USER: state.user
+        Constant.ARG_USER: state.user,
+        Constant.ARG_PHOTOMEMOLIST: state.photoMemoList,
       }, //this passes user from previous screen into our current user variable
+    );
+    state.render(() {}); //re render the screen
+  }
+
+  void onTap(int index) async {
+    await Navigator.pushNamed(
+      state.context,
+      DetailedViewScreen.routeName,
+      arguments: {
+        Constant.ARG_USER: state.user,
+        Constant.ARG_ONE_PHOTOMEMO: state.photoMemoList[index],
+      },
     );
   }
 }

@@ -4,6 +4,8 @@ class Constant {
   static const SRC_CAMERA = 'camera';
   static const SRC_GALLERY = 'gallery';
 
+  static const ARG_ONE_PHOTOMEMO = 'one_photomemo';
+
   static const PHOTOIMAGE_FOLDER = 'photo_image';
   static const PHOTOMEMO_COLLECTION = 'photoMemos';
   static const ARG_PHOTOMEMOLIST = 'photomemo_list';

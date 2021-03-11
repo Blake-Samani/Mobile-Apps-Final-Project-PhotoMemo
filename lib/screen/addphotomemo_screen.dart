@@ -19,6 +19,7 @@ class AddPhotoMemoScreen extends StatefulWidget {
 class _AddPhotoMemoState extends State<AddPhotoMemoScreen> {
   _Controller con;
   User user;
+  List<PhotoMemo> photoMemoList;
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
   File photo; // our image //using our image picker we store into here
   String progressMessage;
@@ -37,6 +38,7 @@ class _AddPhotoMemoState extends State<AddPhotoMemoScreen> {
         .settings
         .arguments; //gets args info passed from previous screen
     user ??= args[Constant.ARG_USER]; // if the user is null,retreive from args our user
+    photoMemoList ??= args[Constant.ARG_PHOTOMEMOLIST];
     return Scaffold(
       appBar: AppBar(
         title: Text('Add PhotoMemo'),
@@ -189,6 +191,8 @@ class _Controller {
       tempMemo.imageLabels = imageLabels; //extracted from ML
       String docID = await FirebaseController.addPhotoMemo(tempMemo);
       tempMemo.docID = docID; //stored image info is now finished
+      state.photoMemoList.insert(0,
+          tempMemo); // Addes to beginning of list, enabling realtime shown on screen after upload
 
       MyDialog.circularProgrossStop(state.context);
       Navigator.pop(state.context); //return to home screen
