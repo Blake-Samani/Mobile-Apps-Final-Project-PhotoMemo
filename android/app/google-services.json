@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "543858065817",
+    "project_id": "cmsc4303-blakes-photomemoapp",
+    "storage_bucket": "cmsc4303-blakes-photomemoapp.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:543858065817:android:ec4ed0cd063e0826c4d308",
+        "android_client_info": {
+          "package_name": "edu.uco.bsamani.map.photomemoapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "543858065817-jaj867sqi89qnm884uh927jh1av20klk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAENX3e4CnTAW-QhoZTyCnZ9fe-vOPEbf0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "543858065817-jaj867sqi89qnm884uh927jh1av20klk.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
