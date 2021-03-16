@@ -23,6 +23,14 @@ class FirebaseController {
         .user; //our return type is a user, managed by firebase_auth module
   }
 
+  static Future<void> createAccount(
+      {@required String email, @required String password}) async {
+    await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
+  }
+
   static Future<void> signOut() async {
     await FirebaseAuth.instance
         .signOut(); //firebase signout function is called via our signout function in user home screen
@@ -95,5 +103,13 @@ class FirebaseController {
         labels.add(label.text.toLowerCase());
     }
     return labels;
+  }
+
+  static Future<void> updatePhotoMemo(
+      String docId, Map<String, dynamic> updateInfo) async {
+    await FirebaseFirestore.instance
+        .collection(Constant.PHOTOMEMO_COLLECTION)
+        .doc(docId)
+        .update(updateInfo);
   }
 }

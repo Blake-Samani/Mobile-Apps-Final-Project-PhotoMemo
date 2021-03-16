@@ -4,6 +4,7 @@ import 'package:photomemoapp/controller/firebasecontroller.dart';
 import 'package:photomemoapp/model/constant.dart';
 import 'package:photomemoapp/model/photomemo.dart';
 import 'package:photomemoapp/screen/myview/mydialog.dart';
+import 'package:photomemoapp/screen/signup_screen.dart';
 import 'package:photomemoapp/screen/userhome_screen.dart';
 
 class SignInScreen extends StatefulWidget {
@@ -31,42 +32,62 @@ class _SignInState extends State<SignInScreen> {
       appBar: AppBar(
         title: Text('Sign in '),
       ),
-      body: Form(
-        key: formKey, // giving our form the key from above line 13
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              TextFormField(
-                decoration: InputDecoration(
-                  //specify a hint for our form sign in (what kind of input goes here)
-                  hintText: 'Email',
+      body: Padding(
+        padding: const EdgeInsets.only(
+            top: 10.0, left: 15.0), //moves email and password a little to the right
+        child: Form(
+          key: formKey, // giving our form the key from above line 13
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                Text(
+                  'PhotoMemo',
+                  style: TextStyle(fontFamily: 'Fascinate', fontSize: 35.0),
                 ),
-                keyboardType: TextInputType
-                    .emailAddress, //specify a type of keyboard for our form sign in
-                autocorrect: false, //turn off  autocorrect
-                validator:
-                    con.validateEmail, //function from controller to validate our email
-                onSaved: con.saveEmail, //function from controller to save our email
-              ),
-              TextFormField(
-                decoration: InputDecoration(
-                  //specify a hint for our form sign in (what kind of input goes here)
-                  hintText: 'Password',
+                Text(
+                  'Sign in, please!',
+                  style: TextStyle(fontFamily: 'Fascinate'),
                 ),
-                obscureText: true, //hide the pw text while typing
-                autocorrect: false, //turn off  autocorrect
-                validator:
-                    con.validatePassword, //function from controller to validate our pw
-                onSaved: con.savePassword, //function from controller to save our pw
-              ),
-              RaisedButton(
-                onPressed: con.signIn,
-                child: Text(
-                  'Sign in',
-                  style: Theme.of(context).textTheme.button,
+                TextFormField(
+                  decoration: InputDecoration(
+                    //specify a hint for our form sign in (what kind of input goes here)
+                    hintText: 'Email',
+                  ),
+                  keyboardType: TextInputType
+                      .emailAddress, //specify a type of keyboard for our form sign in
+                  autocorrect: false, //turn off  autocorrect
+                  validator:
+                      con.validateEmail, //function from controller to validate our email
+                  onSaved: con.saveEmail, //function from controller to save our email
                 ),
-              )
-            ],
+                TextFormField(
+                  decoration: InputDecoration(
+                    //specify a hint for our form sign in (what kind of input goes here)
+                    hintText: 'Password',
+                  ),
+                  obscureText: true, //hide the pw text while typing
+                  autocorrect: false, //turn off  autocorrect
+                  validator:
+                      con.validatePassword, //function from controller to validate our pw
+                  onSaved: con.savePassword, //function from controller to save our pw
+                ),
+                RaisedButton(
+                  onPressed: con.signIn,
+                  child: Text(
+                    'Sign in',
+                    style: Theme.of(context).textTheme.button,
+                  ),
+                ),
+                SizedBox(
+                  height: 15.0,
+                ),
+                RaisedButton(
+                  onPressed: con.signUp,
+                  child: Text('Create a new account',
+                      style: Theme.of(context).textTheme.button),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -145,5 +166,9 @@ class _Controller {
         content: '$e',
       );
     }
+  }
+
+  void signUp() {
+    Navigator.pushNamed(state.context, SignUpScreen.routeName);
   }
 }
