@@ -180,7 +180,7 @@ class _Controller {
 
       //image labels by ML
       state.render(() => state.progressMessage = 'ML Image Labeler Started!');
-      List<String> imageLabels =
+      List<dynamic> imageLabels =
           await FirebaseController.getImageLabels(photoFile: state.photo);
       state.render(() => state.progressMessage = null);
 
@@ -239,7 +239,7 @@ class _Controller {
 
   void saveSharedWith(String value) {
     if (value.trim().length != 0) {
-      tempMemo.shareWith = value.split(RegExp('(,| )+')).map((e) => e.trim()).toList();
+      tempMemo.sharedWith = value.split(RegExp('(,| )+')).map((e) => e.trim()).toList();
     }
   }
 }

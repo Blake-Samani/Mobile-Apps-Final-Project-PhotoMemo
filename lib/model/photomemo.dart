@@ -7,7 +7,7 @@ class PhotoMemo {
   String photoURL;
   DateTime timestamp;
   List<dynamic>
-      shareWith; // list of emails //dynamic must be used to be compatible with firestore
+      sharedWith; // list of emails //dynamic must be used to be compatible with firestore
   List<dynamic> imageLabels; // image identified by machine learning
 
   //key for firestore documents
@@ -30,11 +30,11 @@ class PhotoMemo {
     this.photoURL,
     this.timestamp,
     this.title,
-    this.shareWith,
+    this.sharedWith,
     this.imageLabels,
   }) {
     //logic
-    this.shareWith ??= []; //if null start with empty list
+    this.sharedWith ??= []; //if null start with empty list
     this.imageLabels ??= []; //if null start with empty list
   }
 
@@ -47,9 +47,9 @@ class PhotoMemo {
     this.photoURL = p.photoURL;
     this.timestamp = p.timestamp;
     this.title = p.title;
-    this.shareWith =
+    this.sharedWith =
         []; //must create a new list and add all element by element in order to make deep copy of a list, otherwise, it just references the original list
-    this.shareWith.addAll(p.shareWith);
+    this.sharedWith.addAll(p.sharedWith);
     this.imageLabels = [];
     this.imageLabels.addAll(p.imageLabels);
   }
@@ -63,8 +63,8 @@ class PhotoMemo {
     this.photoURL = p.photoURL;
     this.title = p.title;
     this.timestamp = p.timestamp;
-    this.shareWith.clear();
-    this.shareWith.addAll(p.shareWith);
+    this.sharedWith.clear();
+    this.sharedWith.addAll(p.sharedWith);
     this.imageLabels.clear();
     this.imageLabels.addAll(p.imageLabels);
   }
@@ -79,7 +79,7 @@ class PhotoMemo {
       PHOTO_FILENAME: this.photoFilename,
       PHOTO_URL: this.photoURL,
       TIMESTAMP: this.timestamp,
-      SHARED_WITH: this.shareWith,
+      SHARED_WITH: this.sharedWith,
       IMAGE_LABELS: this.imageLabels,
     }; //strinkg key, dynamic type
   }
@@ -92,7 +92,7 @@ class PhotoMemo {
       memo: doc[MEMO],
       photoFilename: doc[PHOTO_FILENAME],
       photoURL: doc[PHOTO_URL],
-      shareWith: doc[SHARED_WITH],
+      sharedWith: doc[SHARED_WITH],
       imageLabels: doc[IMAGE_LABELS],
       timestamp: doc[TIMESTAMP] == null
           ? null

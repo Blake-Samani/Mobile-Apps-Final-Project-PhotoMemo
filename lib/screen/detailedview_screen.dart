@@ -151,7 +151,7 @@ class _DetailedViewState extends State<DetailedViewScreen> {
                 decoration: InputDecoration(
                   hintText: 'Enter shared with (email list)',
                 ),
-                initialValue: onePhotoMemoTemp.shareWith
+                initialValue: onePhotoMemoTemp.sharedWith
                     .join(','), //we use join by comma since shre with is a list(array)
                 autocorrect: false,
                 keyboardType: TextInputType.multiline,
@@ -215,7 +215,7 @@ class _Controller {
         );
         state.onePhotoMemoTemp.photoURL = photoInfo[Constant.ARG_DOWNLOADURL];
         state.render(() => state.progressMessage = 'ML image labeler started');
-        List<String> labels =
+        List<dynamic> labels =
             await FirebaseController.getImageLabels(photoFile: photoFile);
         state.onePhotoMemoTemp.imageLabels = labels;
 
@@ -228,8 +228,8 @@ class _Controller {
       if (state.onePhotoMemoOriginal.memo != state.onePhotoMemoTemp.memo)
         updateInfo[PhotoMemo.MEMO] = state.onePhotoMemoTemp.memo;
       if (listEquals(
-          state.onePhotoMemoOriginal.shareWith, state.onePhotoMemoTemp.shareWith))
-        updateInfo[PhotoMemo.SHARED_WITH] = state.onePhotoMemoTemp.shareWith;
+          state.onePhotoMemoOriginal.sharedWith, state.onePhotoMemoTemp.sharedWith))
+        updateInfo[PhotoMemo.SHARED_WITH] = state.onePhotoMemoTemp.sharedWith;
 
       updateInfo[PhotoMemo.TIMESTAMP] = DateTime.now();
       await FirebaseController.updatePhotoMemo(state.onePhotoMemoTemp.docID, updateInfo);
@@ -273,7 +273,7 @@ class _Controller {
 
   void saveSharedWith(String value) {
     if (value.trim().length != 0) {
-      state.onePhotoMemoTemp.shareWith = value
+      state.onePhotoMemoTemp.sharedWith = value
           .split(RegExp('(,| )+'))
           .map((e) => e.trim())
           .toList(); //see other functio nliek this
