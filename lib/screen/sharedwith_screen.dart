@@ -4,6 +4,8 @@ import 'package:photomemoapp/model/constant.dart';
 import 'package:photomemoapp/model/photomemo.dart';
 import 'package:photomemoapp/screen/myview/myimage.dart';
 
+import 'comments_screen.dart';
+
 class SharedWithScreen extends StatefulWidget {
   static const routeName = '/sharedWithScreen';
   @override
@@ -56,6 +58,20 @@ class _SharedWithState extends State<SharedWithScreen> {
                         ),
                       ),
                     ),
+                    ButtonBar(
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.comment),
+                          onPressed: null, //fix thisssssssssssssssssssss
+                          iconSize: 35.0,
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.thumb_up),
+                          onPressed: null,
+                          iconSize: 35.0,
+                        ),
+                      ],
+                    ),
                     Text(
                       'Title: ${photoMemoList[index].title}',
                       style: Theme.of(context).textTheme.headline6,
@@ -75,4 +91,11 @@ class _SharedWithState extends State<SharedWithScreen> {
 class _Controller {
   _SharedWithState state;
   _Controller(this.state);
+
+  void comment(int index) async {
+    await Navigator.pushNamed(state.context, CommentsScreen.routeName, arguments: {
+      Constant.ARG_USER: state.user,
+      Constant.ARG_PHOTOMEMOLIST: state.photoMemoList[index],
+    });
+  }
 }
