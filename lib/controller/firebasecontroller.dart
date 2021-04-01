@@ -7,6 +7,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:photomemoapp/model/constant.dart';
 import 'package:photomemoapp/model/photomemo.dart';
+import 'package:photomemoapp/screen/comments_screen.dart';
 
 class FirebaseController {
   static Future<User> signIn({@required String email, @required String password}) async {
@@ -136,6 +137,12 @@ class FirebaseController {
     await FirebaseStorage.instance.ref().child(p.photoFilename).delete();
   }
 
+  // static Future<void> updateComment(PhotoMemo p) async{
+  //   await FirebaseFirestore.instance.collection(Constant.PHOTOMEMO_COLLECTION)
+  //   .doc(p.docID)
+  //   .update(data)
+  // }
+
   static Future<List<PhotoMemo>> searchImage({
     @required String createdBy,
     @required List<String> searchLabels,
@@ -156,5 +163,54 @@ class FirebaseController {
       ),
     );
     return results;
+  }
+
+  static Future<void> updatePhotoComments(
+    String docId,
+    List<dynamic> comment,
+  ) async {
+    await FirebaseFirestore.instance
+        .collection(Constant.PHOTOMEMO_COLLECTION)
+        .doc(docId)
+        .update({Constant.PHOTOMEMO_FIELD_COMMENTS: comment});
+  }
+
+  static Future<List<String>> getPhotoComments({
+    @required String docID,
+  }) async {
+    var comments = <String>[];
+    await FirebaseFirestore.instance
+        .collection(Constant.PHOTOMEMO_COLLECTION)
+        .doc(docID)
+        .get()
+        .then((value) {
+      var d1 = value.data()["comments"];
+
+      for (var e in d1) {
+        comments.add(e);
+      }
+      // print(comments);
+    });
+    return comments;
+    //prints all data for a
+    // DocumentSnapshot querySnapshot;
+    // await FirebaseFirestore.instance.collection(Constant.PHOTOMEMO_COLLECTION).doc(docID).get().then((querySnapshot) {
+
+    //     FirebaseFirestore.instance
+    //     .collection(Constant.PHOTOMEMO_COLLECTION)
+    //     .doc(docID)
+    //     .collection(Constant.PHOTOMEMO_FIELD_COMMENTS)
+    //     .get()
+    //     .then((querySnapshot) => null)
+
+    // });
+    // QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+    //     .collection(Constant.PHOTOMEMO_COLLECTION)
+    //     .doc(docID)
+    //     .get();
+    // .where(PhotoMemo.PHOTO_FILENAME, isEqualTo: filename)
+    // .where(PhotoMemo.IMAGE_LABELS, arrayContainsAny: searchLabels)
+    // .orderBy(PhotoMemo.TIMESTAMP, descending: true)
+    // .get();
   }
 }

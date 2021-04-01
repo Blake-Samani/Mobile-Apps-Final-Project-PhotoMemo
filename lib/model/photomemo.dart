@@ -142,4 +142,11 @@ class PhotoMemo {
     }
     return null; //if we reach there then theres no errors
   }
+
+  static String validateComments(String value) {
+    if (value == null || value.length < 5 || value == '')
+      return 'too short';
+    else
+      return null;
+  }
 }

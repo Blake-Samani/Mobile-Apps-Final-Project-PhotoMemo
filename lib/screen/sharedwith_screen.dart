@@ -62,7 +62,7 @@ class _SharedWithState extends State<SharedWithScreen> {
                       children: [
                         IconButton(
                           icon: Icon(Icons.comment),
-                          onPressed: null, //fix thisssssssssssssssssssss
+                          onPressed: () => con.comment(index),
                           iconSize: 35.0,
                         ),
                         IconButton(
@@ -95,7 +95,8 @@ class _Controller {
   void comment(int index) async {
     await Navigator.pushNamed(state.context, CommentsScreen.routeName, arguments: {
       Constant.ARG_USER: state.user,
-      Constant.ARG_PHOTOMEMOLIST: state.photoMemoList[index],
+      Constant.ARG_ONE_PHOTOMEMO:
+          state.photoMemoList[index], //same as userhomecreen navigating to detailed view
     });
   }
 }
