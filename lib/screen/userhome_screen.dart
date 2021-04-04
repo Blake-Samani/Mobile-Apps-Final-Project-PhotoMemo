@@ -9,6 +9,7 @@ import 'package:photomemoapp/screen/myview/myimage.dart';
 import 'package:photomemoapp/screen/sharedwith_screen.dart';
 
 import 'addphotomemo_screen.dart';
+import 'comments_screen.dart';
 
 class UserHomeScreen extends StatefulWidget {
   static const routeName = '/userHomeScreen';
@@ -127,11 +128,27 @@ class _UserHomeState extends State<UserHomeScreen> {
                       url: photoMemoList[index].photoURL,
                       context: context,
                     ),
+
                     trailing: Icon(Icons.keyboard_arrow_right),
                     title: Text(photoMemoList[index].title),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start, //aligns text to left
                       children: [
+                        ButtonBar(
+                          children: [
+                            IconButton(
+                              icon: Icon(Icons.comment),
+                              onPressed: () => con.comment(index),
+                              iconSize: 35.0,
+                            ),
+                            IconButton(
+                              icon: Icon(Icons.thumb_up),
+                              onPressed: null,
+                              iconSize: 35.0,
+                            ),
+                          ],
+                        ),
+
                         Text(
                           photoMemoList[index].memo.length >= 20
                               ? photoMemoList[index].memo.substring(0, 20) +
@@ -267,5 +284,14 @@ class _Controller {
     } catch (e) {
       MyDialog.info(context: state.context, title: 'Search Error', content: '$e');
     }
+  }
+
+  void comment(int index) async {
+    //might need work
+    await Navigator.pushNamed(state.context, CommentsScreen.routeName, arguments: {
+      Constant.ARG_USER: state.user,
+      Constant.ARG_ONE_PHOTOMEMO:
+          state.photoMemoList[index], //same as userhomecreen navigating to detailed view
+    });
   }
 }

@@ -1,10 +1,14 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:photomemoapp/controller/firebasecontroller.dart';
+import 'package:photomemoapp/model/comments.dart';
 import 'package:photomemoapp/model/constant.dart';
 import 'package:photomemoapp/model/photomemo.dart';
 import 'package:photomemoapp/screen/myview/myimage.dart';
 
+import 'comment_screen.dart';
 import 'comments_screen.dart';
+import 'myview/mydialog.dart';
 
 class SharedWithScreen extends StatefulWidget {
   static const routeName = '/sharedWithScreen';
@@ -18,6 +22,7 @@ class _SharedWithState extends State<SharedWithScreen> {
   _Controller con;
   User user;
   List<PhotoMemo> photoMemoList;
+  List<CommentList> commentList;
 
   @override
   void initState() {
@@ -59,6 +64,7 @@ class _SharedWithState extends State<SharedWithScreen> {
                       ),
                     ),
                     ButtonBar(
+                      // alignment: MainAxisAlignment.center,
                       children: [
                         IconButton(
                           icon: Icon(Icons.comment),
@@ -93,10 +99,17 @@ class _Controller {
   _Controller(this.state);
 
   void comment(int index) async {
-    await Navigator.pushNamed(state.context, CommentsScreen.routeName, arguments: {
+    try {
+      state.commentList = await FirebaseController.getCommentList(
+          fileName: state.photoMemoList[index].photoFilename);
+    } catch (e) {
+      MyDialog.info(context: state.context, title: 'Get Comments Error', content: '$e');
+    }
+    await Navigator.pushNamed(state.context, CommentScreen.routeName, arguments: {
       Constant.ARG_USER: state.user,
       Constant.ARG_ONE_PHOTOMEMO:
           state.photoMemoList[index], //same as userhomecreen navigating to detailed view
+      Constant.ARG_COMMENTLIST: state.commentList,
     });
   }
 }

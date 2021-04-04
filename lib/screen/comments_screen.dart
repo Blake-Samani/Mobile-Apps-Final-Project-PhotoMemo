@@ -111,7 +111,7 @@ class _Controller {
     } catch (e) {
       MyDialog.circularProgrossStop(state.context);
       MyDialog.info(
-          context: state.context, title: 'Update photoMemo Error', content: '$e');
+          context: state.context, title: 'Update Comments Error', content: '$e');
     }
 
     state.onePhotoMemoOriginal.assign(state.onePhotoMemoTemp);

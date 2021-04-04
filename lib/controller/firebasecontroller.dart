@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_ml_vision/firebase_ml_vision.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:photomemoapp/model/comments.dart';
 import 'package:photomemoapp/model/constant.dart';
 import 'package:photomemoapp/model/photomemo.dart';
 import 'package:photomemoapp/screen/comments_screen.dart';
@@ -67,6 +68,26 @@ class FirebaseController {
     };
   }
 
+  static Future<Map<String, String>> uploadComment({
+    @required String comment,
+    @required String uid,
+    @required String photoURL,
+  }) async {
+    await FirebaseStorage.instance.ref(uid).putString(comment);
+    // await FirebaseFirestore.instance
+    //     .collection(Constant.COMMENT_FOLDER)
+    //     .doc(uid)
+    //     .update(comment.serialize);
+  }
+
+  static Future<String> addComment(CommentList comment) async {
+    var ref = await FirebaseFirestore.instance
+        .collection(Constant.COMMENT_FOLDER)
+        .add(comment.serialize());
+
+    return ref.id;
+  }
+
   static Future<String> addPhotoMemo(PhotoMemo photoMemo) async {
     var ref = await FirebaseFirestore.instance
         .collection(Constant.PHOTOMEMO_COLLECTION) //name of collection
@@ -90,6 +111,21 @@ class FirebaseController {
           doc.data(), doc.id)); // deserialize and add the data and the id to our result
     });
     return result; //result is a list type
+  }
+
+  static Future<List<CommentList>> getCommentList({@required String fileName}) async {
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection(Constant.COMMENT_FOLDER)
+        .where(CommentList.COMMENT_FILENAME, isEqualTo: fileName)
+        .orderBy(CommentList.TIMESTAMP, descending: true)
+        .get();
+
+    var result = <CommentList>[];
+    querySnapshot.docs.forEach((doc) {
+      result.add(CommentList.deserialize(doc.data(), doc.id));
+    });
+    print(result);
+    return result;
   }
 
   //method to extract image label with googles ML
