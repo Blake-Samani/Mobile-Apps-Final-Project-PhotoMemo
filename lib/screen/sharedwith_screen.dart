@@ -4,10 +4,10 @@ import 'package:photomemoapp/controller/firebasecontroller.dart';
 import 'package:photomemoapp/model/comments.dart';
 import 'package:photomemoapp/model/constant.dart';
 import 'package:photomemoapp/model/photomemo.dart';
+import 'package:photomemoapp/model/user_likes.dart';
 import 'package:photomemoapp/screen/myview/myimage.dart';
 
 import 'comment_screen.dart';
-import 'comments_screen.dart';
 import 'myview/mydialog.dart';
 
 class SharedWithScreen extends StatefulWidget {
@@ -23,6 +23,8 @@ class _SharedWithState extends State<SharedWithScreen> {
   User user;
   List<PhotoMemo> photoMemoList;
   List<CommentList> commentList;
+  String userID;
+  List<String> email;
 
   @override
   void initState() {
@@ -38,6 +40,8 @@ class _SharedWithState extends State<SharedWithScreen> {
     Map args = ModalRoute.of(context).settings.arguments;
     user ??= args[Constant.ARG_USER];
     photoMemoList ??= args[Constant.ARG_PHOTOMEMOLIST];
+    userID ??= user.email;
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Shared with me'),
@@ -72,8 +76,9 @@ class _SharedWithState extends State<SharedWithScreen> {
                           iconSize: 35.0,
                         ),
                         IconButton(
+                          color: Colors.amber,
                           icon: Icon(Icons.thumb_up),
-                          onPressed: null,
+                          onPressed: () => con.addlike(index),
                           iconSize: 35.0,
                         ),
                       ],
@@ -102,6 +107,7 @@ class _Controller {
     try {
       state.commentList = await FirebaseController.getCommentList(
           fileName: state.photoMemoList[index].photoFilename);
+      // youzer.setUID(state.userID); //setting uid for likes
     } catch (e) {
       MyDialog.info(context: state.context, title: 'Get Comments Error', content: '$e');
     }
@@ -111,5 +117,15 @@ class _Controller {
           state.photoMemoList[index], //same as userhomecreen navigating to detailed view
       Constant.ARG_COMMENTLIST: state.commentList,
     });
+  }
+
+  void addlike(int index) async {
+    List<dynamic> likes = [];
+    likes.add(state.user.email);
+    try {
+      await FirebaseController.addUserLikes(state.photoMemoList[index].docID, likes);
+    } catch (e) {
+      MyDialog.info(context: state.context, title: 'Like button Error', content: '$e');
+    }
   }
 }

@@ -9,7 +9,7 @@ class PhotoMemo {
   List<dynamic>
       sharedWith; // list of emails //dynamic must be used to be compatible with firestore
   List<dynamic> imageLabels; // image identified by machine learning
-  List<dynamic> comments;
+  List<dynamic> likes;
 
   //key for firestore documents
   static const TITLE = 'title';
@@ -20,7 +20,7 @@ class PhotoMemo {
   static const TIMESTAMP = 'timestamp';
   static const SHARED_WITH = 'sharedWith';
   static const IMAGE_LABELS = 'imageLabels';
-  static const COMMENTS = 'comments';
+  static const LIKES = 'likes';
 
   PhotoMemo({
     //constructor
@@ -34,12 +34,12 @@ class PhotoMemo {
     this.title,
     this.sharedWith,
     this.imageLabels,
-    this.comments,
+    this.likes,
   }) {
     //logic
     this.sharedWith ??= []; //if null start with empty list
     this.imageLabels ??= []; //if null start with empty list
-    this.comments ??= [];
+    this.likes ??= [];
   }
 
   PhotoMemo.clone(PhotoMemo p) {
@@ -56,8 +56,8 @@ class PhotoMemo {
     this.sharedWith.addAll(p.sharedWith);
     this.imageLabels = [];
     this.imageLabels.addAll(p.imageLabels);
-    this.comments = [];
-    this.comments.addAll(p.comments);
+    this.likes = [];
+    this.likes.add(p.likes);
   }
 
   void assign(PhotoMemo p) {
@@ -73,8 +73,8 @@ class PhotoMemo {
     this.sharedWith.addAll(p.sharedWith);
     this.imageLabels.clear();
     this.imageLabels.addAll(p.imageLabels);
-    this.comments.clear();
-    this.comments.addAll(p.comments);
+    this.likes.clear();
+    this.likes.addAll(p.likes);
   }
 
   // converts instance of class type into firebase type (dart object to firestore document)
@@ -89,7 +89,7 @@ class PhotoMemo {
       TIMESTAMP: this.timestamp,
       SHARED_WITH: this.sharedWith,
       IMAGE_LABELS: this.imageLabels,
-      COMMENTS: this.comments,
+      LIKES: this.likes,
     }; //strinkg key, dynamic type
   }
 
@@ -108,7 +108,7 @@ class PhotoMemo {
           : //if null assign null
           DateTime.fromMicrosecondsSinceEpoch(doc[TIMESTAMP]
               .millisecondsSinceEpoch), //convert firebase datetime to dart datetime
-      comments: doc[COMMENTS],
+      likes: doc[LIKES],
     );
   }
 
@@ -149,4 +149,17 @@ class PhotoMemo {
     else
       return null;
   }
+
+  // bool hasUserLiked(List<PhotoMemo> likesList, String email){
+  //   bool liked;
+  //   if(likesList.likes.contains(element))
+  // }
+
+  // void incrementLikes() {
+  //   likes++;
+  // }
+
+  // void decrementLikes() {
+  //   if (likes != 0) likes--;
+  // }
 }

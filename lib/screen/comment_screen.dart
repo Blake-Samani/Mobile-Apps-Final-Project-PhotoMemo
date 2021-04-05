@@ -96,7 +96,7 @@ class _CommentScreenState extends State<CommentScreen> {
                             children: [
                               SizedBox(
                                 height: MediaQuery.of(context).size.height * 0.1,
-                                width: MediaQuery.of(context).size.width * 0.04,
+                                width: MediaQuery.of(context).size.width * 0.01,
                               ),
                               Text(
                                 '${commentListOriginal[index].createdBy} : ',
@@ -104,11 +104,11 @@ class _CommentScreenState extends State<CommentScreen> {
                               Text(
                                 '${commentListOriginal[index].comment}',
                               ),
-                              // Text(
-                              //   '${commentListOriginal[index].timestamp}',
-                              // ),
                             ],
                           ),
+                          // Text(
+                          //   '${commentListOriginal[index].timestamp}', //gives me weird time?
+                          // ),
                         ],
                       ),
                     ),
@@ -141,7 +141,7 @@ class _Controller {
       commentListTemp.docID = docID;
       // state.commentList.insert(0, commentListTemp);
       //
-      state.render(() => state.commentListOriginal.add(commentListTemp));
+      state.render(() => state.commentListOriginal.insert(0, commentListTemp));
     } on Exception catch (e) {
       MyDialog.info(context: state.context, title: 'Save Comments Error', content: '$e');
     }

@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:photomemoapp/controller/firebasecontroller.dart';
+import 'package:photomemoapp/model/comments.dart';
 import 'package:photomemoapp/model/constant.dart';
 import 'package:photomemoapp/model/photomemo.dart';
 import 'package:photomemoapp/screen/detailedview_screen.dart';
@@ -9,7 +11,7 @@ import 'package:photomemoapp/screen/myview/myimage.dart';
 import 'package:photomemoapp/screen/sharedwith_screen.dart';
 
 import 'addphotomemo_screen.dart';
-import 'comments_screen.dart';
+import 'comment_screen.dart';
 
 class UserHomeScreen extends StatefulWidget {
   static const routeName = '/userHomeScreen';
@@ -23,7 +25,10 @@ class _UserHomeState extends State<UserHomeScreen> {
   _Controller con;
   User user;
   List<PhotoMemo> photoMemoList;
+  List<PhotoMemo> photoMemoListTemp;
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  List<CommentList> commentList;
+  PhotoMemo tempMemo;
 
   @override
   void initState() {
@@ -143,7 +148,22 @@ class _UserHomeState extends State<UserHomeScreen> {
                             ),
                             IconButton(
                               icon: Icon(Icons.thumb_up),
-                              onPressed: null,
+                              color: photoMemoList[index].likes.contains(user.email)
+                                  ? Colors.blue
+                                  : Colors.grey,
+                              onPressed: () {
+                                if (!photoMemoList[index].likes.contains(user.email)) {
+                                  con.addLike(index);
+                                  setState(() {
+                                    photoMemoList[index].likes.add(user.email);
+                                  });
+                                } else {
+                                  con.removeLike(index);
+                                  setState(() {
+                                    photoMemoList[index].likes.remove(user.email);
+                                  });
+                                }
+                              },
                               iconSize: 35.0,
                             ),
                           ],
@@ -183,6 +203,26 @@ class _Controller {
   int delIndex;
   String keyString;
 
+  void removeLike(int index) async {
+    try {
+      await FirebaseController.deleteUserLike(
+          state.photoMemoList[index], state.user.email);
+    } catch (e) {
+      MyDialog.info(
+          context: state.context, title: 'Like Button Delete Error', content: '$e');
+    }
+  }
+
+  void addLike(int index) async {
+    List<dynamic> likes = [];
+    likes.add(state.user.email);
+    try {
+      await FirebaseController.addUserLikes(state.photoMemoList[index].docID, likes);
+    } catch (e) {
+      MyDialog.info(context: state.context, title: 'Like button Error', content: '$e');
+    }
+  }
+
   void signOut() async {
     try {
       await FirebaseController.signOut();
@@ -221,10 +261,12 @@ class _Controller {
   }
 
   void sharedWithMe() async {
+    // List<bool> hasLiked = [];
     try {
       List<PhotoMemo> photoMemoList = await FirebaseController.getPhotoMemoSharedWithMe(
         email: state.user.email,
       );
+
       await Navigator.pushNamed(state.context, SharedWithScreen.routeName, arguments: {
         Constant.ARG_USER: state.user,
         Constant.ARG_PHOTOMEMOLIST: photoMemoList,
@@ -287,11 +329,18 @@ class _Controller {
   }
 
   void comment(int index) async {
+    try {
+      state.commentList = await FirebaseController.getCommentList(
+          fileName: state.photoMemoList[index].photoFilename);
+    } catch (e) {
+      MyDialog.info(context: state.context, title: 'Get Comments Error', content: '$e');
+    }
     //might need work
-    await Navigator.pushNamed(state.context, CommentsScreen.routeName, arguments: {
+    await Navigator.pushNamed(state.context, CommentScreen.routeName, arguments: {
       Constant.ARG_USER: state.user,
       Constant.ARG_ONE_PHOTOMEMO:
           state.photoMemoList[index], //same as userhomecreen navigating to detailed view
+      Constant.ARG_COMMENTLIST: state.commentList,
     });
   }
 }

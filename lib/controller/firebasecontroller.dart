@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:photomemoapp/model/comments.dart';
 import 'package:photomemoapp/model/constant.dart';
 import 'package:photomemoapp/model/photomemo.dart';
-import 'package:photomemoapp/screen/comments_screen.dart';
+import 'package:photomemoapp/model/user_likes.dart';
 
 class FirebaseController {
   static Future<User> signIn({@required String email, @required String password}) async {
@@ -88,6 +88,14 @@ class FirebaseController {
     return ref.id;
   }
 
+  // static Future<String> addUserLike(UserLikes userlikes) async {
+  //   var ref = await FirebaseFirestore.instance
+  //       .collection(Constant.USERLIKE_FOLDER)
+  //       .add(userlikes.serialize());
+
+  //   return ref.id;
+  // }
+
   static Future<String> addPhotoMemo(PhotoMemo photoMemo) async {
     var ref = await FirebaseFirestore.instance
         .collection(Constant.PHOTOMEMO_COLLECTION) //name of collection
@@ -124,7 +132,23 @@ class FirebaseController {
     querySnapshot.docs.forEach((doc) {
       result.add(CommentList.deserialize(doc.data(), doc.id));
     });
-    print(result);
+
+    return result;
+  }
+
+  static Future<List<UserLikes>> getUserLike(
+      {@required String uid, @required List<String> photoFile}) async {
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection(Constant.USERLIKE_FOLDER)
+        .where(UserLikes.PHOTO_FILE_NAME, isEqualTo: photoFile)
+        .where(UserLikes.USER_ID, isEqualTo: uid)
+        .get();
+
+    var result = <UserLikes>[];
+    querySnapshot.docs.forEach((doc) {
+      result.add(UserLikes.deserialize(doc.data(), doc.id));
+    });
+
     return result;
   }
 
@@ -140,6 +164,20 @@ class FirebaseController {
         labels.add(label.text.toLowerCase());
     }
     return labels;
+  }
+
+  static Future<void> updateUserLike(String docID, Map<String, dynamic> update) async {
+    await FirebaseFirestore.instance
+        .collection(Constant.USERLIKE_FOLDER)
+        .doc(docID)
+        .update(update);
+  }
+
+  static Future<void> addUserLikes(String docID, List<dynamic> email) async {
+    await FirebaseFirestore.instance
+        .collection(Constant.PHOTOMEMO_COLLECTION)
+        .doc(docID)
+        .update({Constant.PHOTOMEMO_FIELD_LIKES: email});
   }
 
   static Future<void> updatePhotoMemo(
@@ -165,12 +203,34 @@ class FirebaseController {
     return result;
   }
 
+  static Future<List<PhotoMemo>> getPhotoMemoLikes({@required String email}) async {
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection(Constant.PHOTOMEMO_COLLECTION)
+        .where(PhotoMemo.LIKES, arrayContains: email)
+        .get();
+
+    var result = <PhotoMemo>[];
+    querySnapshot.docs.forEach((doc) {
+      result.add(PhotoMemo.deserialize(doc.data(), doc.id));
+    });
+    return result;
+  }
+
   static Future<void> deletePhotoMemo(PhotoMemo p) async {
     await FirebaseFirestore.instance
         .collection(Constant.PHOTOMEMO_COLLECTION)
         .doc(p.docID)
         .delete();
     await FirebaseStorage.instance.ref().child(p.photoFilename).delete();
+  }
+
+  static Future<void> deleteUserLike(PhotoMemo p, String email) async {
+    var toDelete = [];
+    toDelete.add(email);
+    await FirebaseFirestore.instance
+        .collection(Constant.PHOTOMEMO_COLLECTION)
+        .doc(p.docID)
+        .update({Constant.PHOTOMEMO_FIELD_LIKES: FieldValue.arrayRemove(toDelete)});
   }
 
   // static Future<void> updateComment(PhotoMemo p) async{
@@ -199,54 +259,5 @@ class FirebaseController {
       ),
     );
     return results;
-  }
-
-  static Future<void> updatePhotoComments(
-    String docId,
-    List<dynamic> comment,
-  ) async {
-    await FirebaseFirestore.instance
-        .collection(Constant.PHOTOMEMO_COLLECTION)
-        .doc(docId)
-        .update({Constant.PHOTOMEMO_FIELD_COMMENTS: comment});
-  }
-
-  static Future<List<String>> getPhotoComments({
-    @required String docID,
-  }) async {
-    var comments = <String>[];
-    await FirebaseFirestore.instance
-        .collection(Constant.PHOTOMEMO_COLLECTION)
-        .doc(docID)
-        .get()
-        .then((value) {
-      var d1 = value.data()["comments"];
-
-      for (var e in d1) {
-        comments.add(e);
-      }
-      // print(comments);
-    });
-    return comments;
-    //prints all data for a
-    // DocumentSnapshot querySnapshot;
-    // await FirebaseFirestore.instance.collection(Constant.PHOTOMEMO_COLLECTION).doc(docID).get().then((querySnapshot) {
-
-    //     FirebaseFirestore.instance
-    //     .collection(Constant.PHOTOMEMO_COLLECTION)
-    //     .doc(docID)
-    //     .collection(Constant.PHOTOMEMO_FIELD_COMMENTS)
-    //     .get()
-    //     .then((querySnapshot) => null)
-
-    // });
-    // QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-    //     .collection(Constant.PHOTOMEMO_COLLECTION)
-    //     .doc(docID)
-    //     .get();
-    // .where(PhotoMemo.PHOTO_FILENAME, isEqualTo: filename)
-    // .where(PhotoMemo.IMAGE_LABELS, arrayContainsAny: searchLabels)
-    // .orderBy(PhotoMemo.TIMESTAMP, descending: true)
-    // .get();
   }
 }

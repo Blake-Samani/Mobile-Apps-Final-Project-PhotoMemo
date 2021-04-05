@@ -227,7 +227,7 @@ class _Controller {
         updateInfo[PhotoMemo.TITLE] = state.onePhotoMemoTemp.title;
       if (state.onePhotoMemoOriginal.memo != state.onePhotoMemoTemp.memo)
         updateInfo[PhotoMemo.MEMO] = state.onePhotoMemoTemp.memo;
-      if (listEquals(
+      if (!listEquals(
           state.onePhotoMemoOriginal.sharedWith, state.onePhotoMemoTemp.sharedWith))
         updateInfo[PhotoMemo.SHARED_WITH] = state.onePhotoMemoTemp.sharedWith;
 
