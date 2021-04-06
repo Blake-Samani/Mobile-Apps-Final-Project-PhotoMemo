@@ -216,6 +216,7 @@ class _Controller {
   void addLike(int index) async {
     List<dynamic> likes = [];
     likes.add(state.user.email);
+
     try {
       await FirebaseController.addUserLikes(state.photoMemoList[index].docID, likes);
     } catch (e) {

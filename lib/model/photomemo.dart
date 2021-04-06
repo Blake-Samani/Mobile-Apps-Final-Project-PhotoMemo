@@ -143,23 +143,27 @@ class PhotoMemo {
     return null; //if we reach there then theres no errors
   }
 
+  static String validateLikes(String value) {
+    if (value == null || value.trim().length == 0)
+      return null; //trim removes leading and trailing blanks
+    List<String> emailList = value
+        .split(RegExp('(,| )+'))
+        .map((e) => e.trim())
+        .toList(); //splits by commas or blanks //plus means one or more of these, either comma or blank
+    //then we put into map, then we trim blank spaces out of the map, then we add it to a list
+    for (String email in emailList) {
+      if (email.contains('@') && email.contains('.'))
+        continue;
+      else
+        return 'Comma(,) or space separated email list';
+    }
+    return null; //if we reach there then theres no errors
+  }
+
   static String validateComments(String value) {
     if (value == null || value.length < 5 || value == '')
       return 'too short';
     else
       return null;
   }
-
-  // bool hasUserLiked(List<PhotoMemo> likesList, String email){
-  //   bool liked;
-  //   if(likesList.likes.contains(element))
-  // }
-
-  // void incrementLikes() {
-  //   likes++;
-  // }
-
-  // void decrementLikes() {
-  //   if (likes != 0) likes--;
-  // }
 }

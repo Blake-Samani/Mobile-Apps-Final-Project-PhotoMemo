@@ -76,9 +76,23 @@ class _SharedWithState extends State<SharedWithScreen> {
                           iconSize: 35.0,
                         ),
                         IconButton(
-                          color: Colors.amber,
+                          color: photoMemoList[index].likes.contains(user.email)
+                              ? Colors.blue
+                              : Colors.grey,
                           icon: Icon(Icons.thumb_up),
-                          onPressed: () => con.addlike(index),
+                          onPressed: () {
+                            if (!photoMemoList[index].likes.contains(user.email)) {
+                              con.addLike(index);
+                              setState(() {
+                                photoMemoList[index].likes.add(user.email);
+                              });
+                            } else {
+                              con.removeLike(index);
+                              setState(() {
+                                photoMemoList[index].likes.remove(user.email);
+                              });
+                            }
+                          },
                           iconSize: 35.0,
                         ),
                       ],
@@ -119,7 +133,17 @@ class _Controller {
     });
   }
 
-  void addlike(int index) async {
+  void removeLike(int index) async {
+    try {
+      await FirebaseController.deleteUserLike(
+          state.photoMemoList[index], state.user.email);
+    } catch (e) {
+      MyDialog.info(
+          context: state.context, title: 'Like Button Delete Error', content: '$e');
+    }
+  }
+
+  void addLike(int index) async {
     List<dynamic> likes = [];
     likes.add(state.user.email);
     try {

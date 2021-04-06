@@ -68,17 +68,17 @@ class FirebaseController {
     };
   }
 
-  static Future<Map<String, String>> uploadComment({
-    @required String comment,
-    @required String uid,
-    @required String photoURL,
-  }) async {
-    await FirebaseStorage.instance.ref(uid).putString(comment);
-    // await FirebaseFirestore.instance
-    //     .collection(Constant.COMMENT_FOLDER)
-    //     .doc(uid)
-    //     .update(comment.serialize);
-  }
+  // static Future<Map<String, String>> uploadComment({
+  //   @required String comment,
+  //   @required String uid,
+  //   @required String photoURL,
+  // }) async {
+  //   await FirebaseStorage.instance.ref(uid).putString(comment);
+  //   // await FirebaseFirestore.instance
+  //   //     .collection(Constant.COMMENT_FOLDER)
+  //   //     .doc(uid)
+  //   //     .update(comment.serialize);
+  // }
 
   static Future<String> addComment(CommentList comment) async {
     var ref = await FirebaseFirestore.instance
@@ -177,7 +177,7 @@ class FirebaseController {
     await FirebaseFirestore.instance
         .collection(Constant.PHOTOMEMO_COLLECTION)
         .doc(docID)
-        .update({Constant.PHOTOMEMO_FIELD_LIKES: email});
+        .update({Constant.PHOTOMEMO_FIELD_LIKES: FieldValue.arrayUnion(email)});
   }
 
   static Future<void> updatePhotoMemo(
