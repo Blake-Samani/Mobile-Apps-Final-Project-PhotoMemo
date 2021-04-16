@@ -172,16 +172,19 @@ class _DetailedViewState extends State<DetailedViewScreen> {
                 decoration: InputDecoration(
                   hintText: 'Users',
                 ),
-                initialValue: onePhotoMemoTemp.likes
-                    .join(',')
-                    .replaceAll('[', '')
-                    .replaceAll(']', ''),
+                initialValue: onePhotoMemoTemp.likes.isEmpty
+                    ? null
+                    : onePhotoMemoTemp.likes
+                        .join(',')
+                        .replaceAll('[', '')
+                        .replaceAll(']', ''),
                 //we use join by comma since shre with is a list(array)
                 autocorrect: false,
                 keyboardType: TextInputType.multiline,
                 maxLines: 6,
-                validator: PhotoMemo.validateLikes,
-                onSaved: con.saveLikes,
+                validator:
+                    onePhotoMemoTemp.likes.isEmpty ? null : PhotoMemo.validateLikes,
+                onSaved: onePhotoMemoTemp.likes.isEmpty ? null : con.saveLikes,
               ),
               Constant.DEV //show image labels only for dev mode, if dev mode not enable, just show invis box
                   ? Text(

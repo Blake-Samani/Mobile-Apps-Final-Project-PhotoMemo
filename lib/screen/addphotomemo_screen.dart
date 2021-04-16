@@ -191,6 +191,7 @@ class _Controller {
       tempMemo.timestamp = DateTime.now();
       tempMemo.createdBy = state.user.email;
       tempMemo.imageLabels = imageLabels; //extracted from ML
+      tempMemo.unread = Constant.FALSE;
       String docID = await FirebaseController.addPhotoMemo(tempMemo);
       tempMemo.docID = docID; //stored image info is now finished
       state.photoMemoList.insert(0,

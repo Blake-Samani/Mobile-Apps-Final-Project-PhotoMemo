@@ -9,7 +9,6 @@ import 'package:photomemoapp/screen/detailedview_screen.dart';
 import 'package:photomemoapp/screen/myview/mydialog.dart';
 import 'package:photomemoapp/screen/myview/myimage.dart';
 import 'package:photomemoapp/screen/sharedwith_screen.dart';
-
 import 'addphotomemo_screen.dart';
 import 'comment_screen.dart';
 
@@ -32,7 +31,6 @@ class _UserHomeState extends State<UserHomeScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     con = _Controller(this);
   }
@@ -165,6 +163,12 @@ class _UserHomeState extends State<UserHomeScreen> {
                                 }
                               },
                               iconSize: 35.0,
+                            ),
+                            Icon(
+                              photoMemoList[index].unread == Constant.TRUE
+                                  ? Icons.notifications_active
+                                  : null,
+                              color: Colors.blue,
                             ),
                           ],
                         ),
@@ -337,6 +341,10 @@ class _Controller {
       MyDialog.info(context: state.context, title: 'Get Comments Error', content: '$e');
     }
     //might need work
+    await FirebaseController.changeUnreadFalse(state
+        .photoMemoList[index].docID); //upon entering comment screen, unread becomes false
+    state.render(() => state.photoMemoList[index].unread =
+        Constant.FALSE); // upon clicking comments page notifications go away
     await Navigator.pushNamed(state.context, CommentScreen.routeName, arguments: {
       Constant.ARG_USER: state.user,
       Constant.ARG_ONE_PHOTOMEMO:

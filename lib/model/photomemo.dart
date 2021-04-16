@@ -5,6 +5,7 @@ class PhotoMemo {
   String memo;
   String photoFilename; //stored at storagte of firebase //nontext database
   String photoURL;
+  String unread;
   DateTime timestamp;
   List<dynamic>
       sharedWith; // list of emails //dynamic must be used to be compatible with firestore
@@ -21,6 +22,7 @@ class PhotoMemo {
   static const SHARED_WITH = 'sharedWith';
   static const IMAGE_LABELS = 'imageLabels';
   static const LIKES = 'likes';
+  static const UNREAD = 'unread';
 
   PhotoMemo({
     //constructor
@@ -35,6 +37,7 @@ class PhotoMemo {
     this.sharedWith,
     this.imageLabels,
     this.likes,
+    this.unread,
   }) {
     //logic
     this.sharedWith ??= []; //if null start with empty list
@@ -51,6 +54,7 @@ class PhotoMemo {
     this.photoURL = p.photoURL;
     this.timestamp = p.timestamp;
     this.title = p.title;
+    this.unread = p.unread;
     this.sharedWith =
         []; //must create a new list and add all element by element in order to make deep copy of a list, otherwise, it just references the original list
     this.sharedWith.addAll(p.sharedWith);
@@ -69,6 +73,7 @@ class PhotoMemo {
     this.photoURL = p.photoURL;
     this.title = p.title;
     this.timestamp = p.timestamp;
+    this.unread = p.unread;
     this.sharedWith.clear();
     this.sharedWith.addAll(p.sharedWith);
     this.imageLabels.clear();
@@ -90,6 +95,7 @@ class PhotoMemo {
       SHARED_WITH: this.sharedWith,
       IMAGE_LABELS: this.imageLabels,
       LIKES: this.likes,
+      UNREAD: this.unread,
     }; //strinkg key, dynamic type
   }
 
@@ -103,6 +109,7 @@ class PhotoMemo {
       photoURL: doc[PHOTO_URL],
       sharedWith: doc[SHARED_WITH],
       imageLabels: doc[IMAGE_LABELS],
+      unread: doc[UNREAD],
       timestamp: doc[TIMESTAMP] == null
           ? null
           : //if null assign null

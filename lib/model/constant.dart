@@ -14,6 +14,9 @@ class Constant {
   static const ARG_PHOTOMEMOLIST = 'photomemo_list';
   static const COMMENT_FOLDER = 'commentFile';
   static const USERLIKE_FOLDER = 'userLikes';
+  static const FALSE = 'false';
+  static const TRUE = 'true';
+  static const PHOTOMEMO_UNREAD_FIELD = 'unread';
 
   static const ARG_DOWNLOADURL = 'downloadurl';
   static const ARG_FILENAME = 'filename';

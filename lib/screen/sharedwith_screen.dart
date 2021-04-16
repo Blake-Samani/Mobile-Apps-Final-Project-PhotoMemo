@@ -4,7 +4,7 @@ import 'package:photomemoapp/controller/firebasecontroller.dart';
 import 'package:photomemoapp/model/comments.dart';
 import 'package:photomemoapp/model/constant.dart';
 import 'package:photomemoapp/model/photomemo.dart';
-import 'package:photomemoapp/model/user_likes.dart';
+
 import 'package:photomemoapp/screen/myview/myimage.dart';
 
 import 'comment_screen.dart';

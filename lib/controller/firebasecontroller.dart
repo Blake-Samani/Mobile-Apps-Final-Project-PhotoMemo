@@ -8,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:photomemoapp/model/comments.dart';
 import 'package:photomemoapp/model/constant.dart';
 import 'package:photomemoapp/model/photomemo.dart';
-import 'package:photomemoapp/model/user_likes.dart';
 
 class FirebaseController {
   static Future<User> signIn({@required String email, @required String password}) async {
@@ -68,18 +67,6 @@ class FirebaseController {
     };
   }
 
-  // static Future<Map<String, String>> uploadComment({
-  //   @required String comment,
-  //   @required String uid,
-  //   @required String photoURL,
-  // }) async {
-  //   await FirebaseStorage.instance.ref(uid).putString(comment);
-  //   // await FirebaseFirestore.instance
-  //   //     .collection(Constant.COMMENT_FOLDER)
-  //   //     .doc(uid)
-  //   //     .update(comment.serialize);
-  // }
-
   static Future<String> addComment(CommentList comment) async {
     var ref = await FirebaseFirestore.instance
         .collection(Constant.COMMENT_FOLDER)
@@ -136,20 +123,21 @@ class FirebaseController {
     return result;
   }
 
-  static Future<List<UserLikes>> getUserLike(
-      {@required String uid, @required List<String> photoFile}) async {
+  static Future<int> getCommentCount({@required String fileName}) async {
+    int count;
     QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-        .collection(Constant.USERLIKE_FOLDER)
-        .where(UserLikes.PHOTO_FILE_NAME, isEqualTo: photoFile)
-        .where(UserLikes.USER_ID, isEqualTo: uid)
+        .collection(Constant.COMMENT_FOLDER)
+        .where(CommentList.COMMENT_FILENAME, isEqualTo: fileName)
+        .orderBy(CommentList.TIMESTAMP, descending: true)
         .get();
 
-    var result = <UserLikes>[];
+    var result = <CommentList>[];
     querySnapshot.docs.forEach((doc) {
-      result.add(UserLikes.deserialize(doc.data(), doc.id));
+      result.add(CommentList.deserialize(doc.data(), doc.id));
+      count++;
     });
 
-    return result;
+    return count;
   }
 
   //method to extract image label with googles ML
@@ -166,18 +154,25 @@ class FirebaseController {
     return labels;
   }
 
-  static Future<void> updateUserLike(String docID, Map<String, dynamic> update) async {
-    await FirebaseFirestore.instance
-        .collection(Constant.USERLIKE_FOLDER)
-        .doc(docID)
-        .update(update);
-  }
-
   static Future<void> addUserLikes(String docID, List<dynamic> email) async {
     await FirebaseFirestore.instance
         .collection(Constant.PHOTOMEMO_COLLECTION)
         .doc(docID)
         .update({Constant.PHOTOMEMO_FIELD_LIKES: FieldValue.arrayUnion(email)});
+  }
+
+  static Future<void> changeUnreadTrue(String docID) async {
+    await FirebaseFirestore.instance
+        .collection(Constant.PHOTOMEMO_COLLECTION)
+        .doc(docID)
+        .update({Constant.PHOTOMEMO_UNREAD_FIELD: Constant.TRUE});
+  }
+
+  static Future<void> changeUnreadFalse(String docID) async {
+    await FirebaseFirestore.instance
+        .collection(Constant.PHOTOMEMO_COLLECTION)
+        .doc(docID)
+        .update({Constant.PHOTOMEMO_UNREAD_FIELD: Constant.FALSE});
   }
 
   static Future<void> updatePhotoMemo(
@@ -233,11 +228,12 @@ class FirebaseController {
         .update({Constant.PHOTOMEMO_FIELD_LIKES: FieldValue.arrayRemove(toDelete)});
   }
 
-  // static Future<void> updateComment(PhotoMemo p) async{
-  //   await FirebaseFirestore.instance.collection(Constant.PHOTOMEMO_COLLECTION)
-  //   .doc(p.docID)
-  //   .update(data)
-  // }
+  static Future<void> deleteUserComment(CommentList c, String docID) async {
+    await FirebaseFirestore.instance
+        .collection(Constant.COMMENT_FOLDER)
+        .doc(c.docID)
+        .delete();
+  }
 
   static Future<List<PhotoMemo>> searchImage({
     @required String createdBy,

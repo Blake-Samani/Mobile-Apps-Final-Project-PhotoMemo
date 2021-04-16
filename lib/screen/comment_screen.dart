@@ -104,6 +104,17 @@ class _CommentScreenState extends State<CommentScreen> {
                               Text(
                                 '${commentListOriginal[index].comment}',
                               ),
+                              IconButton(
+                                alignment: Alignment.centerRight,
+                                icon: user.email == commentListOriginal[index].createdBy
+                                    ? Icon(Icons.delete)
+                                    : Icon(null),
+                                onPressed: () => con.deleteComment(
+                                  commentListOriginal,
+                                  commentListOriginal[index].docID,
+                                  index,
+                                ),
+                              )
                             ],
                           ),
                           // Text(
@@ -142,9 +153,28 @@ class _Controller {
       // state.commentList.insert(0, commentListTemp);
       //
       state.render(() => state.commentListOriginal.insert(0, commentListTemp));
+
+      //some logic to update the unread field to true if the comment is from a user other than the owner of the photo
+      //if owner == currentUser,
+      //  unread stays false, e.g. do nothing
+      // if currentUser != ownerOfPhoto
+      //  unread field becomes true
+      if (state.user.email != state.onePhotoMemoOriginal.createdBy) {
+        await FirebaseController.changeUnreadTrue(state.onePhotoMemoOriginal.docID);
+      }
     } on Exception catch (e) {
       MyDialog.info(context: state.context, title: 'Save Comments Error', content: '$e');
     }
+  }
+
+  void deleteComment(List<CommentList> c, String docID, int index) async {
+    try {
+      await FirebaseController.deleteUserComment(state.commentListOriginal[index], docID);
+    } catch (e) {
+      MyDialog.info(context: state.context, title: 'Delete Comment Error', content: '$e');
+    }
+
+    state.render(() => state.commentListOriginal.removeAt(index));
   }
 
   void saveComment(String value) async {
