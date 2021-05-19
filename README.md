@@ -1,16 +1,9 @@
 # photomemoapp
 
-A new Flutter project.
-
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+A solo final project for Mobile Apps Class at UCO.
+This is a kind of facebook "clone".
+logins are:
+Username    PW
+1@test.com  111111
+2@test.com  222222
+3@test.com  333333
