@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_ml_vision/firebase_ml_vision.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:photomemoapp/model/comments.dart';
 import 'package:photomemoapp/model/constant.dart';
 import 'package:photomemoapp/model/photomemo.dart';
 
@@ -66,6 +67,14 @@ class FirebaseController {
     };
   }
 
+  static Future<String> addComment(CommentList comment) async {
+    var ref = await FirebaseFirestore.instance
+        .collection(Constant.COMMENT_FOLDER)
+        .add(comment.serialize());
+
+    return ref.id;
+  }
+
   static Future<String> addPhotoMemo(PhotoMemo photoMemo) async {
     var ref = await FirebaseFirestore.instance
         .collection(Constant.PHOTOMEMO_COLLECTION) //name of collection
@@ -91,6 +100,38 @@ class FirebaseController {
     return result; //result is a list type
   }
 
+  static Future<List<CommentList>> getCommentList({@required String fileName}) async {
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection(Constant.COMMENT_FOLDER)
+        .where(CommentList.COMMENT_FILENAME, isEqualTo: fileName)
+        .orderBy(CommentList.TIMESTAMP, descending: true)
+        .get();
+
+    var result = <CommentList>[];
+    querySnapshot.docs.forEach((doc) {
+      result.add(CommentList.deserialize(doc.data(), doc.id));
+    });
+
+    return result;
+  }
+
+  static Future<int> getCommentCount({@required String fileName}) async {
+    int count;
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection(Constant.COMMENT_FOLDER)
+        .where(CommentList.COMMENT_FILENAME, isEqualTo: fileName)
+        .orderBy(CommentList.TIMESTAMP, descending: true)
+        .get();
+
+    var result = <CommentList>[];
+    querySnapshot.docs.forEach((doc) {
+      result.add(CommentList.deserialize(doc.data(), doc.id));
+      count++;
+    });
+
+    return count;
+  }
+
   //method to extract image label with googles ML
 
   static Future<List<dynamic>> getImageLabels({@required File photoFile}) async {
@@ -103,6 +144,27 @@ class FirebaseController {
         labels.add(label.text.toLowerCase());
     }
     return labels;
+  }
+
+  static Future<void> addUserLikes(String docID, List<dynamic> email) async {
+    await FirebaseFirestore.instance
+        .collection(Constant.PHOTOMEMO_COLLECTION)
+        .doc(docID)
+        .update({Constant.PHOTOMEMO_FIELD_LIKES: FieldValue.arrayUnion(email)});
+  }
+
+  static Future<void> changeUnreadTrue(String docID) async {
+    await FirebaseFirestore.instance
+        .collection(Constant.PHOTOMEMO_COLLECTION)
+        .doc(docID)
+        .update({Constant.PHOTOMEMO_UNREAD_FIELD: Constant.TRUE});
+  }
+
+  static Future<void> changeUnreadFalse(String docID) async {
+    await FirebaseFirestore.instance
+        .collection(Constant.PHOTOMEMO_COLLECTION)
+        .doc(docID)
+        .update({Constant.PHOTOMEMO_UNREAD_FIELD: Constant.FALSE});
   }
 
   static Future<void> updatePhotoMemo(
@@ -128,12 +190,41 @@ class FirebaseController {
     return result;
   }
 
+  static Future<List<PhotoMemo>> getPhotoMemoLikes({@required String email}) async {
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection(Constant.PHOTOMEMO_COLLECTION)
+        .where(PhotoMemo.LIKES, arrayContains: email)
+        .get();
+
+    var result = <PhotoMemo>[];
+    querySnapshot.docs.forEach((doc) {
+      result.add(PhotoMemo.deserialize(doc.data(), doc.id));
+    });
+    return result;
+  }
+
   static Future<void> deletePhotoMemo(PhotoMemo p) async {
     await FirebaseFirestore.instance
         .collection(Constant.PHOTOMEMO_COLLECTION)
         .doc(p.docID)
         .delete();
     await FirebaseStorage.instance.ref().child(p.photoFilename).delete();
+  }
+
+  static Future<void> deleteUserLike(PhotoMemo p, String email) async {
+    var toDelete = [];
+    toDelete.add(email);
+    await FirebaseFirestore.instance
+        .collection(Constant.PHOTOMEMO_COLLECTION)
+        .doc(p.docID)
+        .update({Constant.PHOTOMEMO_FIELD_LIKES: FieldValue.arrayRemove(toDelete)});
+  }
+
+  static Future<void> deleteUserComment(CommentList c, String docID) async {
+    await FirebaseFirestore.instance
+        .collection(Constant.COMMENT_FOLDER)
+        .doc(c.docID)
+        .delete();
   }
 
   static Future<List<PhotoMemo>> searchImage({

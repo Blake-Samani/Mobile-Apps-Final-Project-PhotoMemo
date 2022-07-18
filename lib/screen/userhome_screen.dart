@@ -1,14 +1,16 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:photomemoapp/controller/firebasecontroller.dart';
+import 'package:photomemoapp/model/comments.dart';
 import 'package:photomemoapp/model/constant.dart';
 import 'package:photomemoapp/model/photomemo.dart';
 import 'package:photomemoapp/screen/detailedview_screen.dart';
 import 'package:photomemoapp/screen/myview/mydialog.dart';
 import 'package:photomemoapp/screen/myview/myimage.dart';
 import 'package:photomemoapp/screen/sharedwith_screen.dart';
-
 import 'addphotomemo_screen.dart';
+import 'comment_screen.dart';
 
 class UserHomeScreen extends StatefulWidget {
   static const routeName = '/userHomeScreen';
@@ -22,11 +24,13 @@ class _UserHomeState extends State<UserHomeScreen> {
   _Controller con;
   User user;
   List<PhotoMemo> photoMemoList;
+  List<PhotoMemo> photoMemoListTemp;
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  List<CommentList> commentList;
+  PhotoMemo tempMemo;
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     con = _Controller(this);
   }
@@ -127,11 +131,48 @@ class _UserHomeState extends State<UserHomeScreen> {
                       url: photoMemoList[index].photoURL,
                       context: context,
                     ),
+
                     trailing: Icon(Icons.keyboard_arrow_right),
                     title: Text(photoMemoList[index].title),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start, //aligns text to left
                       children: [
+                        ButtonBar(
+                          children: [
+                            IconButton(
+                              icon: Icon(Icons.comment),
+                              onPressed: () => con.comment(index),
+                              iconSize: 35.0,
+                            ),
+                            IconButton(
+                              icon: Icon(Icons.thumb_up),
+                              color: photoMemoList[index].likes.contains(user.email)
+                                  ? Colors.blue
+                                  : Colors.grey,
+                              onPressed: () {
+                                if (!photoMemoList[index].likes.contains(user.email)) {
+                                  con.addLike(index);
+                                  setState(() {
+                                    photoMemoList[index].likes.add(user.email);
+                                  });
+                                } else {
+                                  con.removeLike(index);
+                                  setState(() {
+                                    photoMemoList[index].likes.remove(user.email);
+                                  });
+                                }
+                              },
+                              iconSize: 35.0,
+                            ),
+                            Icon(
+                              photoMemoList[index].unread == Constant.TRUE
+                                  ? Icons.notifications_active
+                                  : null,
+                              color: Colors.blue,
+                            ),
+                          ],
+                        ),
+
                         Text(
                           photoMemoList[index].memo.length >= 20
                               ? photoMemoList[index].memo.substring(0, 20) +
@@ -165,6 +206,27 @@ class _Controller {
   _Controller(this.state);
   int delIndex;
   String keyString;
+
+  void removeLike(int index) async {
+    try {
+      await FirebaseController.deleteUserLike(
+          state.photoMemoList[index], state.user.email);
+    } catch (e) {
+      MyDialog.info(
+          context: state.context, title: 'Like Button Delete Error', content: '$e');
+    }
+  }
+
+  void addLike(int index) async {
+    List<dynamic> likes = [];
+    likes.add(state.user.email);
+
+    try {
+      await FirebaseController.addUserLikes(state.photoMemoList[index].docID, likes);
+    } catch (e) {
+      MyDialog.info(context: state.context, title: 'Like button Error', content: '$e');
+    }
+  }
 
   void signOut() async {
     try {
@@ -204,10 +266,12 @@ class _Controller {
   }
 
   void sharedWithMe() async {
+    // List<bool> hasLiked = [];
     try {
       List<PhotoMemo> photoMemoList = await FirebaseController.getPhotoMemoSharedWithMe(
         email: state.user.email,
       );
+
       await Navigator.pushNamed(state.context, SharedWithScreen.routeName, arguments: {
         Constant.ARG_USER: state.user,
         Constant.ARG_PHOTOMEMOLIST: photoMemoList,
@@ -267,5 +331,25 @@ class _Controller {
     } catch (e) {
       MyDialog.info(context: state.context, title: 'Search Error', content: '$e');
     }
+  }
+
+  void comment(int index) async {
+    try {
+      state.commentList = await FirebaseController.getCommentList(
+          fileName: state.photoMemoList[index].photoFilename);
+    } catch (e) {
+      MyDialog.info(context: state.context, title: 'Get Comments Error', content: '$e');
+    }
+    //might need work
+    await FirebaseController.changeUnreadFalse(state
+        .photoMemoList[index].docID); //upon entering comment screen, unread becomes false
+    state.render(() => state.photoMemoList[index].unread =
+        Constant.FALSE); // upon clicking comments page notifications go away
+    await Navigator.pushNamed(state.context, CommentScreen.routeName, arguments: {
+      Constant.ARG_USER: state.user,
+      Constant.ARG_ONE_PHOTOMEMO:
+          state.photoMemoList[index], //same as userhomecreen navigating to detailed view
+      Constant.ARG_COMMENTLIST: state.commentList,
+    });
   }
 }

@@ -23,6 +23,7 @@ class _AddPhotoMemoState extends State<AddPhotoMemoScreen> {
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
   File photo; // our image //using our image picker we store into here
   String progressMessage;
+  // List<bool> hasLiked;
 
   void initState() {
     super.initState();
@@ -39,6 +40,7 @@ class _AddPhotoMemoState extends State<AddPhotoMemoScreen> {
         .arguments; //gets args info passed from previous screen
     user ??= args[Constant.ARG_USER]; // if the user is null,retreive from args our user
     photoMemoList ??= args[Constant.ARG_PHOTOMEMOLIST];
+    // hasLiked ??= args[Constant.ARG_USER_LIKE];
     return Scaffold(
       appBar: AppBar(
         title: Text('Add PhotoMemo'),
@@ -189,12 +191,16 @@ class _Controller {
       tempMemo.timestamp = DateTime.now();
       tempMemo.createdBy = state.user.email;
       tempMemo.imageLabels = imageLabels; //extracted from ML
+      tempMemo.unread = Constant.FALSE;
       String docID = await FirebaseController.addPhotoMemo(tempMemo);
       tempMemo.docID = docID; //stored image info is now finished
       state.photoMemoList.insert(0,
           tempMemo); // Addes to beginning of list, enabling realtime shown on screen after upload
 
       MyDialog.circularProgrossStop(state.context);
+      // state.hasLiked
+      //     .add(false); //when we add new photo, must increase size of has liked array
+
       Navigator.pop(state.context); //return to home screen
     } catch (e) {
       MyDialog.circularProgrossStop(state.context);

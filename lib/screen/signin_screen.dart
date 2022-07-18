@@ -125,6 +125,7 @@ class _Controller {
   }
 
   void signIn() async {
+    // List<bool> hasLiked = [];
     if (!state.formKey.currentState.validate()) return;
 
     state.formKey.currentState
@@ -145,6 +146,9 @@ class _Controller {
         title: 'Sign in Error',
         content: e.toString(),
       );
+      // print(user.email);
+
+      // print(youzer.uid);
       return;
     }
 
@@ -152,11 +156,25 @@ class _Controller {
       //all photomemos are read and when we pass to homescreen we should pass the photo memos as well
       List<PhotoMemo> photoMemoList =
           await FirebaseController.getPhotoMemoList(email: user.email);
+      // List<PhotoMemo> photoMemoListTemp =
+      //     await FirebaseController.getPhotoMemoList(email: user.email);
+      // hasLiked.clear();
+
+      // for (int i = 0; i < photoMemoList.length; i++) {
+      //   //list to check if weve liked our photos or not
+      //   if (photoMemoList[i].likes.contains(user.email)) {
+      //     hasLiked.add(true);
+      //   } else {
+      //     hasLiked.add(false);
+      //   }
+      // }
+      // List<UserLikes> userLike = await FirebaseController.getUserLike(uid: user.email, photoFile: photoMemoList)
       MyDialog.circularProgrossStop(state.context); // spinning wheel disapears
       Navigator.pushNamed(state.context, UserHomeScreen.routeName, //mvoe screen
           arguments: {
             Constant.ARG_USER: user,
             Constant.ARG_PHOTOMEMOLIST: photoMemoList,
+            // Constant.ARG_USER_LIKE: hasLiked,
           });
     } catch (e) {
       MyDialog.circularProgrossStop(state.context); // spinning wheel disapears

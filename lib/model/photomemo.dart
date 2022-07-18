@@ -5,10 +5,12 @@ class PhotoMemo {
   String memo;
   String photoFilename; //stored at storagte of firebase //nontext database
   String photoURL;
+  String unread;
   DateTime timestamp;
   List<dynamic>
       sharedWith; // list of emails //dynamic must be used to be compatible with firestore
   List<dynamic> imageLabels; // image identified by machine learning
+  List<dynamic> likes;
 
   //key for firestore documents
   static const TITLE = 'title';
@@ -19,6 +21,8 @@ class PhotoMemo {
   static const TIMESTAMP = 'timestamp';
   static const SHARED_WITH = 'sharedWith';
   static const IMAGE_LABELS = 'imageLabels';
+  static const LIKES = 'likes';
+  static const UNREAD = 'unread';
 
   PhotoMemo({
     //constructor
@@ -32,10 +36,13 @@ class PhotoMemo {
     this.title,
     this.sharedWith,
     this.imageLabels,
+    this.likes,
+    this.unread,
   }) {
     //logic
     this.sharedWith ??= []; //if null start with empty list
     this.imageLabels ??= []; //if null start with empty list
+    this.likes ??= [];
   }
 
   PhotoMemo.clone(PhotoMemo p) {
@@ -47,11 +54,14 @@ class PhotoMemo {
     this.photoURL = p.photoURL;
     this.timestamp = p.timestamp;
     this.title = p.title;
+    this.unread = p.unread;
     this.sharedWith =
         []; //must create a new list and add all element by element in order to make deep copy of a list, otherwise, it just references the original list
     this.sharedWith.addAll(p.sharedWith);
     this.imageLabels = [];
     this.imageLabels.addAll(p.imageLabels);
+    this.likes = [];
+    this.likes.add(p.likes);
   }
 
   void assign(PhotoMemo p) {
@@ -63,10 +73,13 @@ class PhotoMemo {
     this.photoURL = p.photoURL;
     this.title = p.title;
     this.timestamp = p.timestamp;
+    this.unread = p.unread;
     this.sharedWith.clear();
     this.sharedWith.addAll(p.sharedWith);
     this.imageLabels.clear();
     this.imageLabels.addAll(p.imageLabels);
+    this.likes.clear();
+    this.likes.addAll(p.likes);
   }
 
   // converts instance of class type into firebase type (dart object to firestore document)
@@ -81,6 +94,8 @@ class PhotoMemo {
       TIMESTAMP: this.timestamp,
       SHARED_WITH: this.sharedWith,
       IMAGE_LABELS: this.imageLabels,
+      LIKES: this.likes,
+      UNREAD: this.unread,
     }; //strinkg key, dynamic type
   }
 
@@ -94,11 +109,13 @@ class PhotoMemo {
       photoURL: doc[PHOTO_URL],
       sharedWith: doc[SHARED_WITH],
       imageLabels: doc[IMAGE_LABELS],
+      unread: doc[UNREAD],
       timestamp: doc[TIMESTAMP] == null
           ? null
           : //if null assign null
           DateTime.fromMicrosecondsSinceEpoch(doc[TIMESTAMP]
               .millisecondsSinceEpoch), //convert firebase datetime to dart datetime
+      likes: doc[LIKES],
     );
   }
 
@@ -131,5 +148,29 @@ class PhotoMemo {
         return 'Comma(,) or space separated email list';
     }
     return null; //if we reach there then theres no errors
+  }
+
+  static String validateLikes(String value) {
+    if (value == null || value.trim().length == 0)
+      return null; //trim removes leading and trailing blanks
+    List<String> emailList = value
+        .split(RegExp('(,| )+'))
+        .map((e) => e.trim())
+        .toList(); //splits by commas or blanks //plus means one or more of these, either comma or blank
+    //then we put into map, then we trim blank spaces out of the map, then we add it to a list
+    for (String email in emailList) {
+      if (email.contains('@') && email.contains('.'))
+        continue;
+      else
+        return 'Comma(,) or space separated email list';
+    }
+    return null; //if we reach there then theres no errors
+  }
+
+  static String validateComments(String value) {
+    if (value == null || value.length < 5 || value == '')
+      return 'too short';
+    else
+      return null;
   }
 }

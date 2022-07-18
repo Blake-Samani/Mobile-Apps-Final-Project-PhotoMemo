@@ -120,6 +120,7 @@ class _DetailedViewState extends State<DetailedViewScreen> {
                       progressMessage,
                       style: Theme.of(context).textTheme.headline6,
                     ),
+              Text('Title'),
               TextFormField(
                 enabled:
                     editMode, //if editmode is false, we wont be able to edit. editmode
@@ -132,6 +133,7 @@ class _DetailedViewState extends State<DetailedViewScreen> {
                 validator: PhotoMemo.validateTitle,
                 onSaved: con.saveTitle,
               ),
+              Text('Memo'),
               TextFormField(
                 enabled:
                     editMode, //if editmode is false, we wont be able to edit. editmode
@@ -145,6 +147,7 @@ class _DetailedViewState extends State<DetailedViewScreen> {
                 validator: PhotoMemo.validateMemo,
                 onSaved: con.saveMemo,
               ),
+              Text('Users that you have shared your photos with'),
               TextFormField(
                 enabled:
                     editMode, //if editmode is false, we wont be able to edit. editmode
@@ -162,6 +165,26 @@ class _DetailedViewState extends State<DetailedViewScreen> {
               SizedBox(
                 //spacing
                 height: 5.0,
+              ),
+              Text('Users that like your photo'),
+              TextFormField(
+                enabled: false, //if editmode is false, we wont be able to edit. editmode
+                decoration: InputDecoration(
+                  hintText: 'Users',
+                ),
+                initialValue: onePhotoMemoTemp.likes.isEmpty
+                    ? null
+                    : onePhotoMemoTemp.likes
+                        .join(',')
+                        .replaceAll('[', '')
+                        .replaceAll(']', ''),
+                //we use join by comma since shre with is a list(array)
+                autocorrect: false,
+                keyboardType: TextInputType.multiline,
+                maxLines: 6,
+                validator:
+                    onePhotoMemoTemp.likes.isEmpty ? null : PhotoMemo.validateLikes,
+                onSaved: onePhotoMemoTemp.likes.isEmpty ? null : con.saveLikes,
               ),
               Constant.DEV //show image labels only for dev mode, if dev mode not enable, just show invis box
                   ? Text(
@@ -227,9 +250,11 @@ class _Controller {
         updateInfo[PhotoMemo.TITLE] = state.onePhotoMemoTemp.title;
       if (state.onePhotoMemoOriginal.memo != state.onePhotoMemoTemp.memo)
         updateInfo[PhotoMemo.MEMO] = state.onePhotoMemoTemp.memo;
-      if (listEquals(
+      if (!listEquals(
           state.onePhotoMemoOriginal.sharedWith, state.onePhotoMemoTemp.sharedWith))
         updateInfo[PhotoMemo.SHARED_WITH] = state.onePhotoMemoTemp.sharedWith;
+      if (!listEquals(state.onePhotoMemoOriginal.likes, state.onePhotoMemoTemp.likes))
+        updateInfo[PhotoMemo.LIKES] = state.onePhotoMemoTemp.likes;
 
       updateInfo[PhotoMemo.TIMESTAMP] = DateTime.now();
       await FirebaseController.updatePhotoMemo(state.onePhotoMemoTemp.docID, updateInfo);
@@ -277,6 +302,17 @@ class _Controller {
           .split(RegExp('(,| )+'))
           .map((e) => e.trim())
           .toList(); //see other functio nliek this
+    }
+  }
+
+  void saveLikes(String value) {
+    if (value.trim().length != 0) {
+      state.onePhotoMemoTemp.likes = value
+          .split(RegExp('(,)+'))
+          .map((e) => e.trim())
+          .toList(); //see other functio nliek this
+      value.replaceAll('[', '');
+      value.replaceAll(']', '');
     }
   }
 }
